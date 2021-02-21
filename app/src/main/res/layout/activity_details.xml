@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/normal_padding"
+    tools:context=".ui.details.DetailsActivity">
+
+    <ImageView
+        android:id="@+id/details_image"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/details_source"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="source.com"
+        android:textColor="@color/sourceText" />
+
+    <TextView
+        android:id="@+id/details_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="this is the title"
+        android:textSize="@dimen/title_font"
+        android:textColor="@color/whiteText"
+        android:layout_marginBottom="@dimen/internal_margin" />
+
+    <TextView
+        android:id="@+id/details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="you know what? this is an awesome text which i use to see if the
+layout is working well or not, i won't blame you, like at all, if you don't like it but
+i will be very very sad :("
+        android:textSize="@dimen/news_font"
+        android:textColor="@color/whiteText"
+        android:layout_marginBottom="@dimen/internal_margin" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/details_full_article"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FULL ARTICLE"
+            android:textSize="@dimen/full_article"
+            android:textColor="@color/fullDetails"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+
+</LinearLayout>
