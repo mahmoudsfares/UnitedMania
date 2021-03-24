@@ -20,11 +20,14 @@ class DetailsActivity : AppCompatActivity() {
         binding.detailsSource.text = intent.getStringExtra("source")
         binding.detailsTitle.text = intent.getStringExtra("title")
         var details = intent.getStringExtra("details")
-        val detailsStopPosition = details!!.indexOf("[+");
-        if(detailsStopPosition != -1)
-            details = details.substring(0, detailsStopPosition);
+        if(details == null)
+            details = ""
+        else{
+            val detailsStopPosition = details.indexOf("[+")
+            if(detailsStopPosition != -1)
+                details = details.substring(0, detailsStopPosition)
+        }
         binding.details.text = details
-
         binding.detailsFullArticle.setOnClickListener {
             val i = Intent(Intent.ACTION_VIEW, Uri.parse(intent.getStringExtra("url")))
             startActivity(i)

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="normal_padding">16dp</dimen>
-    <dimen name="title_font">24sp</dimen>
+    <dimen name="header_height">65dp</dimen>
+    <dimen name="header_margin">10dp</dimen>
     <dimen name="internal_margin">8dp</dimen>
-    <dimen name="news_font">14sp</dimen>
-    <dimen name="full_article">18sp</dimen>
+    <dimen name="title_font">20sp</dimen>
+    <dimen name="news_font">16sp</dimen>
+    <dimen name="full_article">20sp</dimen>
 </resources>
