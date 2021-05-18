@@ -1,40 +1,34 @@
 package com.example.unitedmania.ui.news
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.unitedmania.pojo.News
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class NewsViewModel : ViewModel() {
 
-    private val job = Job()
-    private val mainDispatcher = Dispatchers.Main
-    private val uiScope = CoroutineScope(mainDispatcher + job)
 
     private val repo = NewsRepo()
 
-    private val _newsState = MutableStateFlow<NewsState>(NewsState.Default)
-    val newsState: StateFlow<NewsState>
-        get() = _newsState
+    private val loadNewsChannel = Channel<Boolean>()
+    private val newsFlow = loadNewsChannel.receiveAsFlow()
+    val allNews = newsFlow.flatMapLatest { repo.fetchAllNews() }
+        .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-    sealed class NewsState {
-        data class RetrievedArticles(val newsList: List<News>?) : NewsState()
-        object Default : NewsState()
+    sealed class Resource<T>(val newsList: T? = null, val error: String? = null) {
+        class Success<T>(data: T?) : Resource<T>(data)
+        class Loading<T> : Resource<T>()
+        class Error<T>(error: String) : Resource<T>(error = error)
     }
 
     fun fetchAllNews() {
-        _newsState.value = NewsState.Default
-        uiScope.launch {
-            _newsState.value = NewsState.RetrievedArticles(repo.fetchAllNews())
+        viewModelScope.launch {
+            loadNewsChannel.send(true)
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        job.cancel()
     }
 }

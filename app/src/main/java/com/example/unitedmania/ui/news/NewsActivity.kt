@@ -8,8 +8,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.unitedmania.databinding.ActivityNewsBinding
+import com.example.unitedmania.pojo.News
 import com.example.unitedmania.ui.details.DetailsActivity
 import kotlinx.coroutines.flow.collect
+import com.example.unitedmania.ui.news.NewsViewModel.Resource
 
 class NewsActivity : AppCompatActivity() {
 
@@ -25,21 +27,19 @@ class NewsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this).get(NewsViewModel::class.java)
-        viewModel.fetchAllNews()
 
         supportActionBar!!.title = "Latest News"
 
         adapter = NewsAdapter(applicationContext, clickedItemPosition = { position -> onNewsItemSelected(position) })
         manager = LinearLayoutManager(this)
 
-        binding.refresher.setOnRefreshListener {
+        if(viewModel.allNews.value == null)
             viewModel.fetchAllNews()
-        }
 
         lifecycleScope.launchWhenStarted {
-            viewModel.newsState.collect {
+            viewModel.allNews.collect {
                 when (it) {
-                    is NewsViewModel.NewsState.RetrievedArticles -> {
+                    is Resource.Success -> {
                         if (it.newsList != null && it.newsList.isNotEmpty()) {
                             adapter.setData(it.newsList)
                             binding.newsRv.adapter = adapter
@@ -48,12 +48,20 @@ class NewsActivity : AppCompatActivity() {
                             binding.newsRv.visibility = View.VISIBLE
                             binding.noResults.visibility = View.GONE
                             binding.loadingSpinner.visibility = View.GONE
+
                         } else {
                             binding.refresher.isRefreshing = false
                             binding.noResults.visibility = View.VISIBLE
                             binding.newsRv.visibility = View.GONE
                             binding.loadingSpinner.visibility = View.GONE
                         }
+                    }
+                    is Resource.Error -> {
+                        binding.noResults.visibility = View.VISIBLE
+                        binding.noResults.text = it.error
+                        binding.refresher.isRefreshing = false
+                        binding.newsRv.visibility = View.GONE
+                        binding.loadingSpinner.visibility = View.GONE
                     }
                     else -> {
                         binding.noResults.visibility = View.GONE
@@ -63,19 +71,21 @@ class NewsActivity : AppCompatActivity() {
                 }
             }
         }
+
+        binding.refresher.setOnRefreshListener {
+            viewModel.fetchAllNews()
+        }
     }
 
     private fun onNewsItemSelected(position: Int){
-        val news = viewModel.newsState.value
-        if (news is NewsViewModel.NewsState.RetrievedArticles) {
-            val clickedNews = news.newsList!![position]
-            val toDetails = Intent(this@NewsActivity, DetailsActivity::class.java)
-            toDetails.putExtra("source", clickedNews.source.name)
-            toDetails.putExtra("title", clickedNews.title)
-            toDetails.putExtra("details", clickedNews.details)
-            toDetails.putExtra("url", clickedNews.url)
-            toDetails.putExtra("imageUrl", clickedNews.imageUrl)
-            startActivity(toDetails)
-        }
+        val clickedNews = (viewModel.allNews.value as Resource.Success<List<News>>).newsList!![position]
+        val toDetails = Intent(this@NewsActivity, DetailsActivity::class.java)
+        toDetails.putExtra("source", clickedNews.source.name)
+        toDetails.putExtra("title", clickedNews.title)
+        toDetails.putExtra("details", clickedNews.details)
+        toDetails.putExtra("url", clickedNews.url)
+        toDetails.putExtra("imageUrl", clickedNews.imageUrl)
+        startActivity(toDetails)
     }
+
 }
